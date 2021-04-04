@@ -50,15 +50,19 @@ class Text:
     def __init__(self, msg, position, clr=None, font="Segoe Print", font_size=25, mid=False):
         if clr is None:
             clr = [100, 100, 100]
+        self.clr = clr
         self.position = position
         self.font = pygame.font.SysFont(font, font_size)
-        self.txt_surf = self.font.render(msg, True, clr)
+        self.txt_surf = self.font.render(msg, True, self.clr)
 
-        if len(clr) == 4:
-            self.txt_surf.set_alpha(clr[3])
+        if len(self.clr) == 4:
+            self.txt_surf.set_alpha(self.clr[3])
 
         if mid:
             self.position = self.txt_surf.get_rect(center=position)
+
+    def change_text(self, new_msg):
+        self.txt_surf = self.font.render(new_msg, True, self.clr)
 
     def draw(self, screen):
         screen.blit(self.txt_surf, self.position)

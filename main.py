@@ -8,7 +8,7 @@ WIN_HEIGHT = 500
 FPS = 60
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 
-GREEN = (0, 255, 0)
+GREEN = (0, 255, 100)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BACKGROUND_COLOR = WHITE
@@ -66,10 +66,15 @@ if __name__ == '__main__':
 
     button_list = [button_feed, button_train]
 
-    clock = pygame.time.Clock()
-
     states = "bad"
     pet = Pet()
+
+    text_satiety = Text("satiety: {}".format(pet.satiety), (55, 400), (255, 0, 0))
+    text_health = Text("health: {}".format(pet.health), (200, 400), (255, 0, 0))
+
+    clock = pygame.time.Clock()
+
+
 
     # button = pygame.Rect(100, 100, 50, 50)
 
@@ -86,11 +91,13 @@ if __name__ == '__main__':
         if pet.satiety <= 0:
             running = False
             is_victory = False
+            print("LOSE")
             Interval_Satiety.stop()
             Interval_Feeding.stop()
         if pet.satiety >= 100:
             running = False
             is_victory = True
+            print("WIN")
             Interval_Satiety.stop()
             Interval_Feeding.stop()
 
@@ -101,11 +108,13 @@ if __name__ == '__main__':
                     pet.health -= random.randint(5, 20)
                     if pet.health < 0:
                         pet.health = 0
+                    text_health.change_text("satiety: {}".format(pet.health))
                     # print("Health change:", pet.health)
                 if event.MyOwnType == ON_SATIETY:
                     pet.satiety -= random.randint(5, 20)
                     if pet.satiety < 0:
                         pet.satiety = 0
+                    text_satiety.change_text("satiety: {}".format(pet.satiety))
                     # print("Satiety change:", pet.satiety)
 
             elif event.type == KEYDOWN:
@@ -124,14 +133,17 @@ if __name__ == '__main__':
                     pos = pygame.mouse.get_pos()
                     if button_feed.rect.collidepoint(pos):
                         pet.satiety += 10
+                        text_satiety.change_text("satiety: {}".format(pet.satiety))
                         print("You have fed you pet", pet.satiety)
                         button_feed.call_back()
                     elif button_train.rect.collidepoint(pos):
                         pet.satiety -= 10
+                        text_satiety.change_text("satiety: {}".format(pet.satiety))
                         if pet.health >= 50:
                             pet.health += 10
                         else:
                             pet.health -= 15
+                        text_health.change_text("satiety: {}".format(pet.health))
                         print("You have trained you pet", pet.health)
                         button_train.call_back()
 
@@ -139,6 +151,9 @@ if __name__ == '__main__':
 
         for b in button_list:
             b.draw(screen)
+
+        text_satiety.draw(screen)
+        text_health.draw(screen)
 
         if pet.satiety < 50:
             pet.update("hungry")
@@ -151,11 +166,11 @@ if __name__ == '__main__':
         # pygame.draw.rect(screen, [255, 0, 0], button)  # draw button
         pygame.display.flip()
 
-    if is_victory != -1:
-        if is_victory:
-            print("WIN")
-        else:
-            print("LOSE")
-        pygame.time.wait(5000)
+    # if is_victory != -1:
+    #     if is_victory:
+    #         print("WIN")
+    #     else:
+    #         print("LOSE")
+    #     pygame.time.wait(5000)
 
     pygame.quit()
