@@ -1,4 +1,5 @@
 import threading
+import pygame
 
 
 class AlreadyRunning(Exception):
@@ -9,7 +10,7 @@ class IntervalNotValid(Exception):
     pass
 
 
-class setInterval:
+class SetInterval:
     def __init__(self, func=None, sec=None, args=None, autostart=True):
         if args is None:
             args = []
@@ -124,3 +125,7 @@ class setInterval:
 
     def get_return(self):
         return self.Return
+
+
+def set_timer(event_obj, interval):
+    return SetInterval(func=lambda x: pygame.event.post(x), sec=interval, args=[event_obj])

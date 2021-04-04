@@ -1,51 +1,7 @@
-from pygame import *
-from set_interval import setInterval
+from set_interval import *
 import random
 from buttons import *
-
-WIN_WIDTH = 500
-WIN_HEIGHT = 500
-FPS = 60
-DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
-
-GREEN = (0, 255, 100)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BACKGROUND_COLOR = WHITE
-
-ON_SATIETY = 1
-ON_HEALTH = 2
-
-
-def set_timer(event_obj, interval):
-    return setInterval(func=lambda x: pygame.event.post(x), sec=interval, args=[event_obj])
-
-
-class Pet(pygame.sprite.Sprite):
-    def __init__(self, state="good"):
-        pygame.sprite.Sprite.__init__(self)
-        self.state = state
-        self.satiety = 80
-        self.health = 80
-        self.image_path = "imgs/{}.png".format(self.state)
-        self.image = pygame.image.load(self.image_path).convert()
-        self.image.set_colorkey(WHITE, RLEACCEL)
-        self.rect = self.image.get_rect()
-        self.rect.center = (WIN_WIDTH / 2, WIN_WIDTH / 2)
-
-    def update(self, new_state):
-        self.state = new_state
-        self.image_path = "imgs/{}.png".format(self.state)
-        self.image = pygame.image.load(self.image_path).convert()
-        self.image.set_colorkey(WHITE, RLEACCEL)
-
-
-def fn1():
-    print('button1')
-
-
-def fn2():
-    print('button2')
+from unit import *
 
 
 if __name__ == '__main__':
@@ -55,54 +11,48 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(DISPLAY)
     pygame.display.set_caption("Tamagotchi")
 
-    size = 10
-    clr = [255, 0, 255]
-    bg = (255, 255, 0)
+    btn_size = (100, 50)
     font_size = 25
-    font = pygame.font.Font(None, font_size)
-
-    button_feed = Button(position=(100, 100), size=(100, 50), clr=(220, 220, 220), cngclr=GREEN,
-                         func=fn1, text='Feed', font_size=font_size)
-    button_train = Button((240, 100), (100, 50), (220, 220, 220), GREEN, fn2, 'Train', font_size=font_size)
-
+    button_feed = Button((100, 100), btn_size, GRAY, PURPLE, text='Feed', font_size=font_size)
+    button_train = Button((240, 100), btn_size, GRAY, PURPLE, text='Train', font_size=font_size)
     button_list = [button_feed, button_train]
 
     states = "bad"
     pet = Pet()
 
     # text_i_am = Text("I am {}".format(pet.state), (210, 350), (0, 0, 0))
-
-    text_satiety = Text("satiety: {}".format(pet.satiety), (55, 420), (255, 0, 0))
-    text_health = Text("health: {}".format(pet.health), (200, 420), (255, 0, 0))
+    text_satiety = Text("satiety: {}".format(pet.satiety), (55, 400), (255, 0, 0))
+    text_health = Text("health: {}".format(pet.health), (200, 400), (255, 0, 0))
+    text_list = [text_satiety, text_health]
 
     clock = pygame.time.Clock()
 
-
-
-    # button = pygame.Rect(100, 100, 50, 50)
-
-    # pygame.time.set_timer(pygame.USEREVENT, 2000)
     SatietyEvent = pygame.event.Event(pygame.USEREVENT, MyOwnType=ON_SATIETY)
     FeedingEvent = pygame.event.Event(pygame.USEREVENT, MyOwnType=ON_HEALTH)
     Interval_Satiety = set_timer(SatietyEvent, 2)
     Interval_Feeding = set_timer(FeedingEvent, 2)
+    Interval_list = [Interval_Satiety, Interval_Feeding]
+
     running = True
     is_victory = -1
+
+    def game_ends():
+        global running, Interval_list
+        running = False
+        for it in Interval_list:
+            it.stop()
+
     while running:
         clock.tick(FPS)
 
         if pet.satiety <= 0 or pet.health <= 0:
-            running = False
             is_victory = False
             print("LOSE")
-            Interval_Satiety.stop()
-            Interval_Feeding.stop()
+            game_ends()
         if pet.satiety >= 100 or pet.health >= 100:
-            running = False
             is_victory = True
             print("WIN")
-            Interval_Satiety.stop()
-            Interval_Feeding.stop()
+            game_ends()
 
         for event in pygame.event.get():
 
@@ -112,23 +62,17 @@ if __name__ == '__main__':
                     if pet.satiety < 0:
                         pet.satiety = 0
                     text_satiety.change_text("satiety: {}".format(pet.satiety))
-                    # print("Satiety change:", pet.satiety)
                 elif event.MyOwnType == ON_HEALTH:
                     pet.health -= random.randint(5, 20)
                     if pet.health < 0:
                         pet.health = 0
                     text_health.change_text("health: {}".format(pet.health))
-                    # print("Health change:", pet.health)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    running = False
-                    Interval_Satiety.stop()
-                    Interval_Feeding.stop()
+                    game_ends()
 
             elif event.type == pygame.QUIT:
-                running = False
-                Interval_Satiety.stop()
-                Interval_Feeding.stop()
+                game_ends()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -136,7 +80,6 @@ if __name__ == '__main__':
                     if button_feed.rect.collidepoint(pos):
                         pet.satiety += 10
                         text_satiety.change_text("satiety: {}".format(pet.satiety))
-                        print("You have fed you pet", pet.satiety)
                         button_feed.call_back()
                     elif button_train.rect.collidepoint(pos):
                         pet.satiety -= 10
@@ -146,7 +89,6 @@ if __name__ == '__main__':
                         else:
                             pet.health -= 15
                         text_health.change_text("satiety: {}".format(pet.health))
-                        print("You have trained you pet", pet.health)
                         button_train.call_back()
 
         screen.fill(BACKGROUND_COLOR)
@@ -154,9 +96,8 @@ if __name__ == '__main__':
         for b in button_list:
             b.draw(screen)
 
-        text_satiety.draw(screen)
-        text_health.draw(screen)
-        # text_i_am.draw(screen)
+        for t in text_list:
+            t.draw(screen)
 
         if pet.satiety < 50:
             pet.update("hungry")
@@ -169,14 +110,6 @@ if __name__ == '__main__':
             pet.update("died")
 
         screen.blit(pet.image, pet.rect)
-        # pygame.draw.rect(screen, [255, 0, 0], button)  # draw button
         pygame.display.flip()
-
-    # if is_victory != -1:
-    #     if is_victory:
-    #         print("WIN")
-    #     else:
-    #         print("LOSE")
-    #     pygame.time.wait(5000)
 
     pygame.quit()
