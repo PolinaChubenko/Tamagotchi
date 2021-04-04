@@ -37,6 +37,7 @@ class Pet(pygame.sprite.Sprite):
         self.state = new_state
         self.image_path = "imgs/{}.png".format(self.state)
         self.image = pygame.image.load(self.image_path).convert()
+        self.image.set_colorkey(WHITE, RLEACCEL)
 
 
 def fn1():
@@ -69,8 +70,10 @@ if __name__ == '__main__':
     states = "bad"
     pet = Pet()
 
-    text_satiety = Text("satiety: {}".format(pet.satiety), (55, 400), (255, 0, 0))
-    text_health = Text("health: {}".format(pet.health), (200, 400), (255, 0, 0))
+    # text_i_am = Text("I am {}".format(pet.state), (210, 350), (0, 0, 0))
+
+    text_satiety = Text("satiety: {}".format(pet.satiety), (55, 420), (255, 0, 0))
+    text_health = Text("health: {}".format(pet.health), (200, 420), (255, 0, 0))
 
     clock = pygame.time.Clock()
 
@@ -88,13 +91,13 @@ if __name__ == '__main__':
     while running:
         clock.tick(FPS)
 
-        if pet.satiety <= 0:
+        if pet.satiety <= 0 or pet.health <= 0:
             running = False
             is_victory = False
             print("LOSE")
             Interval_Satiety.stop()
             Interval_Feeding.stop()
-        if pet.satiety >= 100:
+        if pet.satiety >= 100 or pet.health >= 100:
             running = False
             is_victory = True
             print("WIN")
@@ -104,19 +107,18 @@ if __name__ == '__main__':
         for event in pygame.event.get():
 
             if event.type == pygame.USEREVENT:
-                if event.MyOwnType == ON_HEALTH:
-                    pet.health -= random.randint(5, 20)
-                    if pet.health < 0:
-                        pet.health = 0
-                    text_health.change_text("satiety: {}".format(pet.health))
-                    # print("Health change:", pet.health)
                 if event.MyOwnType == ON_SATIETY:
                     pet.satiety -= random.randint(5, 20)
                     if pet.satiety < 0:
                         pet.satiety = 0
                     text_satiety.change_text("satiety: {}".format(pet.satiety))
                     # print("Satiety change:", pet.satiety)
-
+                elif event.MyOwnType == ON_HEALTH:
+                    pet.health -= random.randint(5, 20)
+                    if pet.health < 0:
+                        pet.health = 0
+                    text_health.change_text("health: {}".format(pet.health))
+                    # print("Health change:", pet.health)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
@@ -138,7 +140,7 @@ if __name__ == '__main__':
                         button_feed.call_back()
                     elif button_train.rect.collidepoint(pos):
                         pet.satiety -= 10
-                        text_satiety.change_text("satiety: {}".format(pet.satiety))
+                        text_satiety.change_text("health: {}".format(pet.satiety))
                         if pet.health >= 50:
                             pet.health += 10
                         else:
@@ -154,11 +156,15 @@ if __name__ == '__main__':
 
         text_satiety.draw(screen)
         text_health.draw(screen)
+        # text_i_am.draw(screen)
 
         if pet.satiety < 50:
             pet.update("hungry")
         if pet.satiety >= 50:
-            pet.update("good")
+            if pet.health < 50:
+                pet.update("unhealthy")
+            else:
+                pet.update("good")
         if pet.satiety <= 0:
             pet.update("died")
 
