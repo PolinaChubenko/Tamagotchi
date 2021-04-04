@@ -40,7 +40,7 @@ def event_loop(screen):
                     if button_feed.rect.collidepoint(pos):
                         pet.satiety += 10
                         check_top()
-                        text_satiety.change_text("satiety: {}".format(pet.satiety))
+                        update_text()
                         button_feed.call_back()
 
                     elif button_train.rect.collidepoint(pos):
@@ -51,8 +51,7 @@ def event_loop(screen):
                             pet.health -= 15
                         check_bottom()
                         check_top()
-                        text_satiety.change_text("satiety: {}".format(pet.satiety))
-                        text_health.change_text("health: {}".format(pet.health))
+                        update_text()
                         button_train.call_back()
 
                     if button_heal.rect.collidepoint(pos):
@@ -63,13 +62,17 @@ def event_loop(screen):
                             pet.health -= 20
                         check_bottom()
                         check_top()
-                        text_satiety.change_text("satiety: {}".format(pet.satiety))
-                        text_health.change_text("health: {}".format(pet.health))
+                        update_text()
                         button_feed.call_back()
 
-        check_state()
+        update_state()
         draw_everything(screen)
         pygame.display.flip()
+
+
+def update_text():
+    text_satiety.change_text("satiety: {}".format(pet.satiety))
+    text_health.change_text("health: {}".format(pet.health))
 
 
 def check_bottom():
@@ -86,7 +89,7 @@ def check_top():
         pet.health = 100
 
 
-def check_state():
+def update_state():
     if pet.satiety < 50:
         pet.update("hungry")
     if pet.satiety >= 50:
