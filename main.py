@@ -20,12 +20,12 @@ def event_loop(screen):
                 if e.MyOwnType == ON_SATIETY:
                     pet.satiety -= random.randint(5, 20)
                     check_bottom()
-                    text_satiety.change_text("satiety: {}".format(pet.satiety))
+                    update_text()
 
                 elif e.MyOwnType == ON_HEALTH:
                     pet.health -= random.randint(5, 20)
                     check_bottom()
-                    text_health.change_text("health: {}".format(pet.health))
+                    update_text()
 
             elif e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
