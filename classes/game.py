@@ -1,6 +1,6 @@
-from set_interval import *
-from buttons import *
-from unit import *
+from classes.set_interval import *
+from classes.buttons import *
+from classes.unit import *
 
 
 class Game:

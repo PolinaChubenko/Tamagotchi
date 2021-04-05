@@ -1,6 +1,6 @@
 import pygame
 from pygame import *
-from global_vars import *
+from classes.global_vars import *
 import random
 
 

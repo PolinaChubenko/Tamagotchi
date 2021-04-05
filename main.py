@@ -1,4 +1,4 @@
-from game import *
+from classes.game import *
 
 
 if __name__ == '__main__':
