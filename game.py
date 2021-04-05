@@ -11,29 +11,34 @@ class Game:
         pygame.display.set_caption("Tamagotchi")
         self.screen = pygame.display.set_mode(DISPLAY)
 
-        # start menu objects
-        self.button_start_game = Button((250, 290), MENU_BTN_SIZE, GRAY, YELLOW, text='PLAY', font_size=FONT_SIZE)
-        self.button_exit = Button((250, 370), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
-        self.logo = pygame.image.load("imgs/logo.png")
-        self.logo = pygame.transform.scale(self.logo, (400, 100))
-
-        self.start_menu_show = True
-
         # pet initialization
         self.states = "bad"
         self.pet = Pet()
+        self.best_score = self.pet.money
+
+        # start menu objects
+        self.button_start_game = Button((250, 310), MENU_BTN_SIZE, GRAY, YELLOW, text='PLAY', font_size=FONT_SIZE)
+        self.button_exit = Button((250, 390), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
+        self.text_best_score = Text("Best score: {}$".format(self.best_score), (170, 230), YELLOW, font_size=35)
+        self.logo = pygame.image.load("imgs/logo.png")
+        self.logo = pygame.transform.scale(self.logo, (400, 100))
+
+        self.start_objects = [self.button_start_game, self.button_exit, self.text_best_score]
+        self.start_menu_show = True
 
         # game objects
         self.button_feed = Button((80, 100), BTN_SIZE, GRAY, PURPLE, text='Feed', font_size=FONT_SIZE)
         self.button_train = Button((190, 100), BTN_SIZE, GRAY, PURPLE, text='Train', font_size=FONT_SIZE)
         self.button_heal = Button((300, 100), BTN_SIZE, GRAY, PURPLE, text='Heal', font_size=FONT_SIZE)
         self.button_play = Button((410, 100), BTN_SIZE, GRAY, PURPLE, text='Play', font_size=FONT_SIZE)
-        self.button_list = [self.button_feed, self.button_train, self.button_heal, self.button_play]
+        self.button_work = Button((370, 210), MENU_BTN_SIZE, GRAY, PURPLE, text='Work!', font_size=FONT_SIZE)
+        self.button_list = [self.button_feed, self.button_train, self.button_heal, self.button_play, self.button_work]
 
-        self.text_satiety = Text("satiety: {}".format(self.pet.satiety), (55, 400), (255, 0, 0))
-        self.text_health = Text("health: {}".format(self.pet.health), (200, 400), (255, 0, 0))
-        self.text_happiness = Text("happiness: {}".format(self.pet.happiness), (330, 400), (255, 0, 0))
-        self.text_list = [self.text_satiety, self.text_health, self.text_happiness]
+        self.text_satiety = Text("satiety: {}".format(self.pet.satiety), (55, 400), RED)
+        self.text_health = Text("health: {}".format(self.pet.health), (200, 400), RED)
+        self.text_happiness = Text("happiness: {}".format(self.pet.happiness), (330, 400), RED)
+        self.text_money = Text("Money: {}$".format(self.pet.money), (320, 290), YELLOW, font_size=30)
+        self.text_list = [self.text_satiety, self.text_health, self.text_happiness, self.text_money]
 
         self.life_cycle_event = pygame.event.Event(pygame.USEREVENT, MyOwnType=ON_LIFE_CYCLE)
         self.interval_life_cycle = set_timer(self.life_cycle_event, 2, autostart=False)
@@ -41,12 +46,14 @@ class Game:
         self.game_running = False
 
         # dead menu objects
-        self.text_money_result = Text("Your pet have earned {} dollars".format(self.pet.money), (130, 60), BLACK)
-        self.button_restart_game = Button((250, 300), MENU_BTN_SIZE, GRAY, YELLOW, text='REPLAY', font_size=FONT_SIZE)
-        self.button_exit2 = Button((250, 380), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
+        self.text_money_result = Text("Your pet have earned {} dollars".format(self.pet.money), (130, 50), BLACK)
+        self.text_best_score2 = Text("Best score: {}$".format(self.best_score), (180, 85), YELLOW, font_size=30)
+        self.button_restart_game = Button((250, 310), MENU_BTN_SIZE, GRAY, YELLOW, text='REPLAY', font_size=FONT_SIZE)
+        self.button_exit2 = Button((250, 390), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
         self.grave = pygame.image.load("imgs/grave.png")
-        self.grave = pygame.transform.scale(self.grave, (125, 125))
+        self.grave = pygame.transform.scale(self.grave, (120, 120))
 
+        self.dead_objects = [self.text_money_result, self.text_best_score2, self.button_restart_game, self.button_exit2]
         self.dead_menu_show = False
 
     def start_menu(self):
@@ -77,14 +84,14 @@ class Game:
         self.dead_menu_show = False
         self.interval_life_cycle.stop()
 
-    def check_victory(self, lose=0, win=100):
+    def check_victory(self, lose=0):
         if self.pet.satiety <= lose or self.pet.health <= lose:
-            print("LOSE")
+            print("LOSE: ", self.pet.money)
             self.dead_menu()
-        elif self.pet.satiety >= win and self.pet.health >= win\
-                and self.pet.happiness >= win:
-            print("WIN")
-            self.dead_menu()
+        # elif self.pet.satiety >= win and self.pet.health >= win\
+        #         and self.pet.happiness >= win:
+        #     print("WIN")
+        #     self.dead_menu()
 
     def game_loop(self):
         clock = pygame.time.Clock()
@@ -115,8 +122,11 @@ class Game:
                 elif pressed_keys[K_d]:
                     self.pet.healing()
 
-                elif pressed_keys[K_f]:
+                elif pressed_keys[K_k]:
                     self.pet.playing()
+
+                elif pressed_keys[K_l]:
+                    self.pet.working()
 
                 elif e.type == pygame.MOUSEBUTTONDOWN:
                     if e.button == 1:
@@ -137,6 +147,10 @@ class Game:
                             self.pet.playing()
                             self.button_feed.call_back()
 
+                        elif self.button_work.rect.collidepoint(pos):
+                            self.pet.working()
+                            self.button_feed.call_back()
+
             self.update_text()
             self.pet.update_state()
             self.draw_everything()
@@ -146,6 +160,27 @@ class Game:
         self.text_satiety.change_text("satiety: {}".format(self.pet.satiety))
         self.text_health.change_text("health: {}".format(self.pet.health))
         self.text_happiness.change_text("happiness: {}".format(self.pet.happiness))
+        self.text_money.change_text("Money: {}$".format(self.pet.money))
+        if self.pet.satiety >= 50:
+            self.text_satiety.change_color(GREEN)
+        elif self.pet.satiety >= 30:
+            self.text_satiety.change_color(ORANGE)
+        else:
+            self.text_satiety.change_color(RED)
+
+        if self.pet.health >= 50:
+            self.text_health.change_color(GREEN)
+        elif self.pet.health >= 30:
+            self.text_health.change_color(ORANGE)
+        else:
+            self.text_health.change_color(RED)
+
+        if self.pet.happiness >= 60:
+            self.text_happiness.change_color(GREEN)
+        elif self.pet.happiness >= 20:
+            self.text_happiness.change_color(ORANGE)
+        else:
+            self.text_happiness.change_color(RED)
 
     def draw_everything(self):
         self.screen.fill(BACKGROUND_COLOR)
@@ -167,6 +202,10 @@ class Game:
                 elif e.type == pygame.QUIT:
                     self.game_ends()
 
+                pressed_keys = pygame.key.get_pressed()
+                if pressed_keys[K_RETURN]:
+                    self.start_game()
+
                 elif e.type == pygame.MOUSEBUTTONDOWN:
                     if e.button == 1:
                         pos = pygame.mouse.get_pos()
@@ -176,9 +215,11 @@ class Game:
                             self.game_ends()
 
             self.screen.fill(BACKGROUND_COLOR)
-            self.screen.blit(self.logo, (50, 120))
-            self.button_start_game.draw(self.screen)
-            self.button_exit.draw(self.screen)
+            self.change_best_score()
+            self.text_best_score.change_text("Best score: {}$".format(self.best_score))
+            self.screen.blit(self.logo, (50, 95))
+            for el in self.start_objects:
+                el.draw(self.screen)
             pygame.display.flip()
 
     def dead_menu_loop(self):
@@ -193,6 +234,10 @@ class Game:
                 elif e.type == pygame.QUIT:
                     self.game_ends()
 
+                pressed_keys = pygame.key.get_pressed()
+                if pressed_keys[K_RETURN]:
+                    self.start_game()
+
                 elif e.type == pygame.MOUSEBUTTONDOWN:
                     if e.button == 1:
                         pos = pygame.mouse.get_pos()
@@ -202,8 +247,14 @@ class Game:
                             self.game_ends()
 
             self.screen.fill(BACKGROUND_COLOR)
-            self.screen.blit(self.grave, (185, 120))
-            self.text_money_result.draw(self.screen)
-            self.button_restart_game.draw(self.screen)
-            self.button_exit2.draw(self.screen)
+            self.change_best_score()
+            self.text_best_score2.change_text("Best score: {}$".format(self.best_score))
+            self.text_money_result.change_text("Your pet have earned {} dollars".format(self.pet.money))
+            self.screen.blit(self.grave, (185, 130))
+            for el in self.dead_objects:
+                el.draw(self.screen)
             pygame.display.flip()
+
+    def change_best_score(self):
+        if self.pet.money > self.best_score:
+            self.best_score = self.pet.money

@@ -11,11 +11,12 @@ class Pet(pygame.sprite.Sprite):
         self.health = 80
         self.happiness = 80
         self.money = 0
+        self.money_delta = 10
         self.image_path = "imgs/{}.png".format(state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, RLEACCEL)
         self.rect = self.image.get_rect()
-        self.rect.center = (WIN_WIDTH / 2, WIN_HEIGHT / 2)
+        self.rect.center = (WIN_WIDTH / 2 - 70, WIN_HEIGHT / 2)
 
     def update(self, new_state):
         self.image_path = "imgs/{}.png".format(new_state)
@@ -30,6 +31,7 @@ class Pet(pygame.sprite.Sprite):
         self.health = 80
         self.happiness = 80
         self.money = 0
+        self.money_delta = 10
         self.update("good")
 
     def life_cycle(self, lose=0, win=100):
@@ -92,3 +94,12 @@ class Pet(pygame.sprite.Sprite):
         self.satiety -= 15
         self.happiness += 15
         self.check_params()
+
+    def working(self):
+        if self.happiness > 0:
+            self.money += self.money_delta
+            self.money_delta += 1
+            self.satiety -= 10
+            self.health -= 10
+            self.happiness -= 10
+            self.check_params()
