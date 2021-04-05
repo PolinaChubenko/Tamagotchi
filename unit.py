@@ -10,6 +10,7 @@ class Pet(pygame.sprite.Sprite):
         self.state = state
         self.satiety = 80
         self.health = 80
+        self.happiness = 80
         self.image_path = "imgs/{}.png".format(self.state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, RLEACCEL)
@@ -28,6 +29,7 @@ class Pet(pygame.sprite.Sprite):
     def life_cycle(self, lose=0, win=100):
         self.satiety -= random.randint(5, 20)
         self.health -= random.randint(5, 20)
+        self.happiness -= random.randint(5, 20)
         self.check_params(lose, win)
 
     def check_params(self, lose=0, win=100):
@@ -41,15 +43,23 @@ class Pet(pygame.sprite.Sprite):
             self.health = win
 
     def update_state(self, lose=0, mid=50):
-        if self.satiety < mid:
+        if self.happiness >= 90 and self.health >= 90 and self.satiety >= 90:
+            self.update("happy")
+        elif self.health == lose or self.satiety == lose:
+            self.update("died")
+        elif self.satiety < mid:
             self.update("hungry")
-        if self.satiety >= mid:
+        elif self.satiety >= mid:
             if self.health < mid:
                 self.update("unhealthy")
             else:
-                self.update("good")
-        if self.satiety <= lose:
-            self.update("died")
+                if self.happiness <= 0:
+                    self.update("depression")
+                elif self.happiness < 40:
+                    self.update("bad")
+                elif self.happiness < 60:
+                    self.update("boring")
+                else: self.update("good")
 
     def feeding(self):
         self.satiety += 10
@@ -65,8 +75,14 @@ class Pet(pygame.sprite.Sprite):
 
     def healing(self, mid=50):
         self.satiety -= 10
+        self.happiness -= 5
         if self.health < mid:
             self.health += 15
         else:
             self.health -= 20
+        self.check_params()
+
+    def playing(self):
+        self.satiety -= 15
+        self.happiness += 15
         self.check_params()
