@@ -19,8 +19,8 @@ class SetInterval:
         self.sec = sec            # interval in second
         self.Return = None  # The returned data
         self.args = args
-        self.runOnce = None  # asociated with run_once() method
-        self.runOnceArgs = None   # asociated with run_once() method
+        self.runOnce = None  # associated with run_once() method
+        self.runOnceArgs = None   # associated with run_once() method
 
         if (func is not None) and (sec is not None) and autostart:
             self.running = True
@@ -36,7 +36,7 @@ class SetInterval:
 
     def start(self):
         if not self.running:
-            if not self.isValid():
+            if not self.is_valid():
                 raise IntervalNotValid("The function and/or the " +
                                        "interval hasn't provided or invalid.")
             self.running = True
@@ -48,7 +48,7 @@ class SetInterval:
     def stop(self):
         self.running = False
 
-    def isValid(self):
+    def is_valid(self):
         if not callable(self.func):
             return False
 
@@ -62,11 +62,11 @@ class SetInterval:
         if self.running:
             self.TIMER = threading.Timer(self.sec, self.loop)
             self.TIMER.start()
-            function_, Args_ = self.func, self.args
+            function_, args_ = self.func, self.args
 
             if self.runOnce is not None:  # someone has provide the run_once
-                runOnce, self.runOnce = self.runOnce, None
-                result = runOnce(*self.runOnceArgs)
+                run_once, self.runOnce = self.runOnce, None
+                result = run_once(*self.runOnceArgs)
                 self.runOnceArgs = None
 
                 # if and only if the result is False. not accept "None"
@@ -74,7 +74,7 @@ class SetInterval:
                 if result is False:
                     return  # cancel the interval right now
 
-            self.Return = function_(*Args_)
+            self.Return = function_(*args_)
 
     def change_interval(self, sec):
 
@@ -112,10 +112,10 @@ class SetInterval:
         if args is not None:
             self.args = args
 
-    def change_argument(self, newArgument=None):
-        if newArgument is None:
-            newArgument = []
-        self.args = newArgument
+    def change_argument(self, new_argument=None):
+        if new_argument is None:
+            new_argument = []
+        self.args = new_argument
 
     def run_once(self, func, args=None):
         if args is None:

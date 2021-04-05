@@ -1,6 +1,7 @@
 import pygame
 from pygame import *
 from global_vars import *
+import random
 
 
 class Pet(pygame.sprite.Sprite):
@@ -20,3 +21,52 @@ class Pet(pygame.sprite.Sprite):
         self.image_path = "imgs/{}.png".format(self.state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, RLEACCEL)
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+    def life_cycle(self, lose=0, win=100):
+        self.satiety -= random.randint(5, 20)
+        self.health -= random.randint(5, 20)
+        self.check_params(lose, win)
+
+    def check_params(self, lose=0, win=100):
+        if self.satiety < lose:
+            self.satiety = lose
+        if self.health < lose:
+            self.health = lose
+        if self.satiety > win:
+            self.satiety = win
+        if self.health > win:
+            self.health = win
+
+    def update_state(self, lose=0, mid=50):
+        if self.satiety < mid:
+            self.update("hungry")
+        if self.satiety >= mid:
+            if self.health < mid:
+                self.update("unhealthy")
+            else:
+                self.update("good")
+        if self.satiety <= lose:
+            self.update("died")
+
+    def feeding(self):
+        self.satiety += 10
+        self.check_params()
+
+    def training(self, mid=50):
+        self.satiety -= 10
+        if self.health >= mid:
+            self.health += 10
+        else:
+            self.health -= 15
+        self.check_params()
+
+    def healing(self, mid=50):
+        self.satiety -= 10
+        if self.health < mid:
+            self.health += 15
+        else:
+            self.health -= 20
+        self.check_params()
