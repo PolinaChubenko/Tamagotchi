@@ -127,5 +127,5 @@ class SetInterval:
         return self.Return
 
 
-def set_timer(event_obj, interval):
-    return SetInterval(func=lambda x: pygame.event.post(x), sec=interval, args=[event_obj])
+def set_timer(event_obj, interval, autostart=True):
+    return SetInterval(func=lambda x: pygame.event.post(x), sec=interval, args=[event_obj], autostart=autostart)

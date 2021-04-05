@@ -5,14 +5,25 @@ from unit import *
 
 class Game:
     def __init__(self):
+        # screen initialization
         pygame.init()
         pygame.mixer.init()
         pygame.display.set_caption("Tamagotchi")
-        self.game_screen = pygame.display.set_mode(DISPLAY)
+        self.screen = pygame.display.set_mode(DISPLAY)
 
+        # start menu objects
+        self.button_start_game = Button((250, 290), MENU_BTN_SIZE, GRAY, YELLOW, text='PLAY', font_size=FONT_SIZE)
+        self.button_exit = Button((250, 370), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
+        self.logo = pygame.image.load("imgs/logo.png")
+        self.logo = pygame.transform.scale(self.logo, (400, 100))
+
+        self.start_menu_show = True
+
+        # pet initialization
         self.states = "bad"
         self.pet = Pet()
 
+        # game objects
         self.button_feed = Button((80, 100), BTN_SIZE, GRAY, PURPLE, text='Feed', font_size=FONT_SIZE)
         self.button_train = Button((190, 100), BTN_SIZE, GRAY, PURPLE, text='Train', font_size=FONT_SIZE)
         self.button_heal = Button((300, 100), BTN_SIZE, GRAY, PURPLE, text='Heal', font_size=FONT_SIZE)
@@ -25,31 +36,59 @@ class Game:
         self.text_list = [self.text_satiety, self.text_health, self.text_happiness]
 
         self.life_cycle_event = pygame.event.Event(pygame.USEREVENT, MyOwnType=ON_LIFE_CYCLE)
+        self.interval_life_cycle = set_timer(self.life_cycle_event, 2, autostart=False)
 
-        self.interval_life_cycle = set_timer(self.life_cycle_event, 2)
+        self.game_running = False
 
-        self.running = True
+        # dead menu objects
+        self.text_money_result = Text("Your pet have earned {} dollars".format(self.pet.money), (130, 60), BLACK)
+        self.button_restart_game = Button((250, 300), MENU_BTN_SIZE, GRAY, YELLOW, text='REPLAY', font_size=FONT_SIZE)
+        self.button_exit2 = Button((250, 380), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
+        self.grave = pygame.image.load("imgs/grave.png")
+        self.grave = pygame.transform.scale(self.grave, (125, 125))
+
+        self.dead_menu_show = False
+
+    def start_menu(self):
+        self.start_menu_show = True
+        self.game_running = False
+        self.dead_menu_show = False
+        self.interval_life_cycle.stop()
+        self.start_menu_loop()
 
     def start_game(self):
-        self.running = True
-        self.event_loop()
+        self.pet.refresh_params()
+        self.start_menu_show = False
+        self.game_running = True
+        self.dead_menu_show = False
+        self.interval_life_cycle.start()
+        self.game_loop()
+
+    def dead_menu(self):
+        self.start_menu_show = False
+        self.game_running = False
+        self.dead_menu_show = True
+        self.interval_life_cycle.stop()
+        self.dead_menu_loop()
 
     def game_ends(self):
-        self.running = False
+        self.start_menu_show = False
+        self.game_running = False
+        self.dead_menu_show = False
         self.interval_life_cycle.stop()
 
     def check_victory(self, lose=0, win=100):
         if self.pet.satiety <= lose or self.pet.health <= lose:
             print("LOSE")
-            self.game_ends()
+            self.dead_menu()
         elif self.pet.satiety >= win and self.pet.health >= win\
                 and self.pet.happiness >= win:
             print("WIN")
-            self.game_ends()
+            self.dead_menu()
 
-    def event_loop(self):
+    def game_loop(self):
         clock = pygame.time.Clock()
-        while self.running:
+        while self.game_running:
             clock.tick(FPS)
             self.check_victory()
 
@@ -109,9 +148,62 @@ class Game:
         self.text_happiness.change_text("happiness: {}".format(self.pet.happiness))
 
     def draw_everything(self):
-        self.game_screen.fill(BACKGROUND_COLOR)
+        self.screen.fill(BACKGROUND_COLOR)
         for b in self.button_list:
-            b.draw(self.game_screen)
+            b.draw(self.screen)
         for t in self.text_list:
-            t.draw(self.game_screen)
-        self.pet.draw(self.game_screen)
+            t.draw(self.screen)
+        self.pet.draw(self.screen)
+
+    def start_menu_loop(self):
+        clock = pygame.time.Clock()
+        while self.start_menu_show:
+            clock.tick(FPS)
+            for e in pygame.event.get():
+                if e.type == KEYDOWN:
+                    if e.key == K_ESCAPE:
+                        self.game_ends()
+
+                elif e.type == pygame.QUIT:
+                    self.game_ends()
+
+                elif e.type == pygame.MOUSEBUTTONDOWN:
+                    if e.button == 1:
+                        pos = pygame.mouse.get_pos()
+                        if self.button_start_game.rect.collidepoint(pos):
+                            self.start_game()
+                        elif self.button_exit.rect.collidepoint(pos):
+                            self.game_ends()
+
+            self.screen.fill(BACKGROUND_COLOR)
+            self.screen.blit(self.logo, (50, 120))
+            self.button_start_game.draw(self.screen)
+            self.button_exit.draw(self.screen)
+            pygame.display.flip()
+
+    def dead_menu_loop(self):
+        clock = pygame.time.Clock()
+        while self.dead_menu_show:
+            clock.tick(FPS)
+            for e in pygame.event.get():
+                if e.type == KEYDOWN:
+                    if e.key == K_ESCAPE:
+                        self.game_ends()
+
+                elif e.type == pygame.QUIT:
+                    self.game_ends()
+
+                elif e.type == pygame.MOUSEBUTTONDOWN:
+                    if e.button == 1:
+                        pos = pygame.mouse.get_pos()
+                        if self.button_restart_game.rect.collidepoint(pos):
+                            self.start_game()
+                        elif self.button_exit2.rect.collidepoint(pos):
+                            self.game_ends()
+
+            self.screen.fill(BACKGROUND_COLOR)
+            self.screen.blit(self.grave, (185, 120))
+            self.text_money_result.draw(self.screen)
+            self.button_restart_game.draw(self.screen)
+            self.button_exit2.draw(self.screen)
+            pygame.display.flip()

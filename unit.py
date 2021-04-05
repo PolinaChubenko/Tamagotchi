@@ -7,24 +7,30 @@ import random
 class Pet(pygame.sprite.Sprite):
     def __init__(self, state="good"):
         pygame.sprite.Sprite.__init__(self)
-        self.state = state
         self.satiety = 80
         self.health = 80
         self.happiness = 80
-        self.image_path = "imgs/{}.png".format(self.state)
+        self.money = 0
+        self.image_path = "imgs/{}.png".format(state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, RLEACCEL)
         self.rect = self.image.get_rect()
-        self.rect.center = (WIN_WIDTH / 2, WIN_WIDTH / 2)
+        self.rect.center = (WIN_WIDTH / 2, WIN_HEIGHT / 2)
 
     def update(self, new_state):
-        self.state = new_state
-        self.image_path = "imgs/{}.png".format(self.state)
+        self.image_path = "imgs/{}.png".format(new_state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, RLEACCEL)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+
+    def refresh_params(self):
+        self.satiety = 80
+        self.health = 80
+        self.happiness = 80
+        self.money = 0
+        self.update("good")
 
     def life_cycle(self, lose=0, win=100):
         self.satiety -= random.randint(5, 20)
