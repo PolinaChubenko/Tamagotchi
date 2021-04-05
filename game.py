@@ -49,11 +49,11 @@ class Game:
         self.text_money_result = Text("Your pet have earned {} dollars".format(self.pet.money), (130, 50), BLACK)
         self.text_best_score2 = Text("Best score: {}$".format(self.best_score), (180, 85), YELLOW, font_size=30)
         self.button_restart_game = Button((250, 310), MENU_BTN_SIZE, GRAY, YELLOW, text='REPLAY', font_size=FONT_SIZE)
-        self.button_exit2 = Button((250, 390), MENU_BTN_SIZE, GRAY, YELLOW, text='EXIT', font_size=FONT_SIZE)
+        self.button_menu = Button((250, 390), MENU_BTN_SIZE, GRAY, YELLOW, text='MENU', font_size=FONT_SIZE)
         self.grave = pygame.image.load("imgs/grave.png")
         self.grave = pygame.transform.scale(self.grave, (120, 120))
 
-        self.dead_objects = [self.text_money_result, self.text_best_score2, self.button_restart_game, self.button_exit2]
+        self.dead_objects = [self.text_money_result, self.text_best_score2, self.button_restart_game, self.button_menu]
         self.dead_menu_show = False
 
     def start_menu(self):
@@ -88,10 +88,6 @@ class Game:
         if self.pet.satiety <= lose or self.pet.health <= lose:
             print("LOSE: ", self.pet.money)
             self.dead_menu()
-        # elif self.pet.satiety >= win and self.pet.health >= win\
-        #         and self.pet.happiness >= win:
-        #     print("WIN")
-        #     self.dead_menu()
 
     def game_loop(self):
         clock = pygame.time.Clock()
@@ -243,8 +239,8 @@ class Game:
                         pos = pygame.mouse.get_pos()
                         if self.button_restart_game.rect.collidepoint(pos):
                             self.start_game()
-                        elif self.button_exit2.rect.collidepoint(pos):
-                            self.game_ends()
+                        elif self.button_menu.rect.collidepoint(pos):
+                            self.start_menu()
 
             self.screen.fill(BACKGROUND_COLOR)
             self.change_best_score()
