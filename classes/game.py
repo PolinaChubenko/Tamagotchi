@@ -1,6 +1,8 @@
 from classes.set_interval import set_timer
 from classes.buttons import Button, Text
-from classes.unit import *
+from classes.unit import Pet
+from classes.global_vars import *
+import pygame
 
 
 class Game:
@@ -14,6 +16,9 @@ class Game:
         # pet initialization
         self.states = "bad"
         self.pet = Pet()
+        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites.add(self.pet)
+
         self.best_score = self.pet.money
 
         # start menu objects
@@ -101,27 +106,27 @@ class Game:
                         self.pet.life_cycle()
                         self.update_text()
 
-                elif e.type == KEYDOWN:
-                    if e.key == K_ESCAPE:
+                elif e.type == pygame.KEYDOWN:
+                    if e.key == pygame.K_ESCAPE:
                         self.game_ends()
 
                 elif e.type == pygame.QUIT:
                     self.game_ends()
 
                 pressed_keys = pygame.key.get_pressed()
-                if pressed_keys[K_a]:
+                if pressed_keys[pygame.K_a]:
                     self.pet.feed()
 
-                elif pressed_keys[K_s]:
+                elif pressed_keys[pygame.K_s]:
                     self.pet.train()
 
-                elif pressed_keys[K_d]:
+                elif pressed_keys[pygame.K_d]:
                     self.pet.heal()
 
-                elif pressed_keys[K_k]:
+                elif pressed_keys[pygame.K_k]:
                     self.pet.play()
 
-                elif pressed_keys[K_l]:
+                elif pressed_keys[pygame.K_l]:
                     self.pet.work()
 
                 elif e.type == pygame.MOUSEBUTTONDOWN:
@@ -184,22 +189,22 @@ class Game:
             b.draw(self.screen)
         for t in self.text_list:
             t.draw(self.screen)
-        self.pet.draw(self.screen)
+        self.all_sprites.draw(self.screen)
 
     def start_menu_loop(self):
         clock = pygame.time.Clock()
         while self.start_menu_show:
             clock.tick(FPS)
             for e in pygame.event.get():
-                if e.type == KEYDOWN:
-                    if e.key == K_ESCAPE:
+                if e.type == pygame.KEYDOWN:
+                    if e.key == pygame.K_ESCAPE:
                         self.game_ends()
 
                 elif e.type == pygame.QUIT:
                     self.game_ends()
 
                 pressed_keys = pygame.key.get_pressed()
-                if pressed_keys[K_RETURN]:
+                if pressed_keys[pygame.K_RETURN]:
                     self.start_game()
 
                 elif e.type == pygame.MOUSEBUTTONDOWN:
@@ -223,15 +228,15 @@ class Game:
         while self.dead_menu_show:
             clock.tick(FPS)
             for e in pygame.event.get():
-                if e.type == KEYDOWN:
-                    if e.key == K_ESCAPE:
+                if e.type == pygame.KEYDOWN:
+                    if e.key == pygame.K_ESCAPE:
                         self.game_ends()
 
                 elif e.type == pygame.QUIT:
                     self.game_ends()
 
                 pressed_keys = pygame.key.get_pressed()
-                if pressed_keys[K_RETURN]:
+                if pressed_keys[pygame.K_RETURN]:
                     self.start_game()
 
                 elif e.type == pygame.MOUSEBUTTONDOWN:

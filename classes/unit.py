@@ -1,5 +1,4 @@
 import pygame
-from pygame import *
 from classes.global_vars import *
 import random
 
@@ -14,16 +13,14 @@ class Pet(pygame.sprite.Sprite):
         self.money_delta = 10
         self.image_path = "imgs/{}.png".format(state)
         self.image = pygame.image.load(self.image_path).convert()
-        self.image.set_colorkey(WHITE, RLEACCEL)
-        self.position = (105, 185)
+        self.image.set_colorkey(WHITE, pygame.RLEACCEL)
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIN_WIDTH / 2 - 70, WIN_HEIGHT / 2)
 
     def update(self, new_state):
         self.image_path = "imgs/{}.png".format(new_state)
         self.image = pygame.image.load(self.image_path).convert()
-        self.image.set_colorkey(WHITE, RLEACCEL)
-
-    def draw(self, screen):
-        screen.blit(self.image, self.position)
+        self.image.set_colorkey(WHITE, pygame.RLEACCEL)
 
     def refresh_params(self):
         self.satiety = 80
