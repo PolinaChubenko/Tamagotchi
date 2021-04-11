@@ -15,8 +15,7 @@ class Pet(pygame.sprite.Sprite):
         self.image_path = "imgs/{}.png".format(state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, RLEACCEL)
-        self.rect = self.image.get_rect()
-        self.rect.center = (WIN_WIDTH / 2 - 70, WIN_HEIGHT / 2)
+        self.position = (105, 185)
 
     def update(self, new_state):
         self.image_path = "imgs/{}.png".format(new_state)
@@ -24,7 +23,7 @@ class Pet(pygame.sprite.Sprite):
         self.image.set_colorkey(WHITE, RLEACCEL)
 
     def draw(self, screen):
-        screen.blit(self.image, self.rect)
+        screen.blit(self.image, self.position)
 
     def refresh_params(self):
         self.satiety = 80
@@ -69,11 +68,11 @@ class Pet(pygame.sprite.Sprite):
                     self.update("boring")
                 else: self.update("good")
 
-    def feeding(self):
+    def feed(self):
         self.satiety += 10
         self.check_params()
 
-    def training(self, mid=50):
+    def train(self, mid=50):
         self.satiety -= 10
         if self.health >= mid:
             self.health += 10
@@ -81,7 +80,7 @@ class Pet(pygame.sprite.Sprite):
             self.health -= 15
         self.check_params()
 
-    def healing(self, mid=50):
+    def heal(self, mid=50):
         self.satiety -= 10
         self.happiness -= 5
         if self.health < mid:
@@ -90,12 +89,12 @@ class Pet(pygame.sprite.Sprite):
             self.health -= 20
         self.check_params()
 
-    def playing(self):
+    def play(self):
         self.satiety -= 15
         self.happiness += 15
         self.check_params()
 
-    def working(self):
+    def work(self):
         if self.happiness > 0:
             self.money += self.money_delta
             self.money_delta += 1

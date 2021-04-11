@@ -1,4 +1,5 @@
-from classes.game import *
+from classes.game import Game
+import pygame
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import threading
 import pygame
+from numbers import Number
 
 
 class AlreadyRunning(Exception):
@@ -15,12 +16,12 @@ class SetInterval:
         if args is None:
             args = []
         self.running = False
-        self.func = func  # the function to be run
-        self.sec = sec            # interval in second
-        self.Return = None  # The returned data
+        self.func = func
+        self.interval = sec
+        self.Return = None
         self.args = args
-        self.runOnce = None  # associated with run_once() method
-        self.runOnceArgs = None   # associated with run_once() method
+        self.run_once = None
+        self.run_once_args = None
 
         if (func is not None) and (sec is not None) and autostart:
             self.running = True
@@ -28,10 +29,10 @@ class SetInterval:
             if not callable(func):
                 raise TypeError("non-callable object is given")
 
-            if not isinstance(sec, int) and not isinstance(sec, float):
+            if not isinstance(sec, Number):
                 raise TypeError("A non-numeric object is given")
 
-            self.TIMER = threading.Timer(self.sec, self.loop)
+            self.TIMER = threading.Timer(self.interval, self.loop)
             self.TIMER.start()
 
     def start(self):
@@ -40,7 +41,7 @@ class SetInterval:
                 raise IntervalNotValid("The function and/or the " +
                                        "interval hasn't provided or invalid.")
             self.running = True
-            self.TIMER = threading.Timer(self.sec, self.loop)
+            self.TIMER = threading.Timer(self.interval, self.loop)
             self.TIMER.start()
         else:
             raise AlreadyRunning("Tried to run an already run interval")
@@ -52,22 +53,20 @@ class SetInterval:
         if not callable(self.func):
             return False
 
-        cond1 = not isinstance(self.sec, int)
-        cond2 = not isinstance(self.sec, float)
-        if cond1 and cond2:
+        if not isinstance(self.interval, Number):
             return False
         return True
 
     def loop(self):
         if self.running:
-            self.TIMER = threading.Timer(self.sec, self.loop)
+            self.TIMER = threading.Timer(self.interval, self.loop)
             self.TIMER.start()
             function_, args_ = self.func, self.args
 
-            if self.runOnce is not None:  # someone has provide the run_once
-                run_once, self.runOnce = self.runOnce, None
-                result = run_once(*self.runOnceArgs)
-                self.runOnceArgs = None
+            if self.run_once is not None:  # someone has provide the run_once
+                run_once, self.run_once = self.run_once, None
+                result = run_once(*self.run_once_args)
+                self.run_once_args = None
 
                 # if and only if the result is False. not accept "None"
                 # nor zero.
@@ -78,28 +77,26 @@ class SetInterval:
 
     def change_interval(self, sec):
 
-        cond1 = not isinstance(sec, int)
-        cond2 = not isinstance(sec, float)
-        if cond1 and cond2:
+        if not isinstance(sec, Number):
             raise TypeError("A non-numeric object is given")
 
         # prevent error when providing interval to a blueprint
         if self.running:
             self.TIMER.cancel()
 
-        self.sec = sec
+        self.interval = sec
 
         # prevent error when providing interval to a blueprint
         # if the function hasn't provided yet
         if self.running:
-            self.TIMER = threading.Timer(self.sec, self.loop)
+            self.TIMER = threading.Timer(self.interval, self.loop)
             self.TIMER.start()
 
     def change_next_interval(self, sec):
-        if not isinstance(sec, int) and not isinstance(sec, float):
+        if not isinstance(sec, Number):
             raise TypeError("A non-numeric object is given")
 
-        self.sec = sec
+        self.interval = sec
 
     def change_func(self, func, args=None):
         if args is None:
@@ -120,8 +117,8 @@ class SetInterval:
     def run_once(self, func, args=None):
         if args is None:
             args = []
-        self.runOnce = func
-        self.runOnceArgs = args
+        self.run_once = func
+        self.run_once_args = args
 
     def get_return(self):
         return self.Return

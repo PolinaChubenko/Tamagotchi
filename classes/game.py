@@ -1,5 +1,5 @@
-from classes.set_interval import *
-from classes.buttons import *
+from classes.set_interval import set_timer
+from classes.buttons import Button, Text
 from classes.unit import *
 
 
@@ -110,41 +110,41 @@ class Game:
 
                 pressed_keys = pygame.key.get_pressed()
                 if pressed_keys[K_a]:
-                    self.pet.feeding()
+                    self.pet.feed()
 
                 elif pressed_keys[K_s]:
-                    self.pet.training()
+                    self.pet.train()
 
                 elif pressed_keys[K_d]:
-                    self.pet.healing()
+                    self.pet.heal()
 
                 elif pressed_keys[K_k]:
-                    self.pet.playing()
+                    self.pet.play()
 
                 elif pressed_keys[K_l]:
-                    self.pet.working()
+                    self.pet.work()
 
                 elif e.type == pygame.MOUSEBUTTONDOWN:
                     if e.button == 1:
                         pos = pygame.mouse.get_pos()
                         if self.button_feed.rect.collidepoint(pos):
-                            self.pet.feeding()
+                            self.pet.feed()
                             self.button_feed.call_back()
 
                         elif self.button_train.rect.collidepoint(pos):
-                            self.pet.training()
+                            self.pet.train()
                             self.button_train.call_back()
 
                         elif self.button_heal.rect.collidepoint(pos):
-                            self.pet.healing()
+                            self.pet.heal()
                             self.button_feed.call_back()
 
                         elif self.button_play.rect.collidepoint(pos):
-                            self.pet.playing()
+                            self.pet.play()
                             self.button_feed.call_back()
 
                         elif self.button_work.rect.collidepoint(pos):
-                            self.pet.working()
+                            self.pet.work()
                             self.button_feed.call_back()
 
             self.update_text()
