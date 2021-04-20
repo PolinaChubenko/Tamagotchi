@@ -14,7 +14,6 @@ class Game:
         self.screen = pygame.display.set_mode(DISPLAY)
 
         # pet initialization
-        self.states = "bad"
         self.pet = Pet()
         self.all_sprites = pygame.sprite.Group()
         self.all_sprites.add(self.pet)

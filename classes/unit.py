@@ -1,23 +1,35 @@
 import pygame
 from classes.global_vars import *
+from classes.state import PetState, Good
 import random
 
 
 class Pet(pygame.sprite.Sprite):
-    def __init__(self, state="good"):
+    _state = None
+
+    def __init__(self, state: PetState = Good()):
         pygame.sprite.Sprite.__init__(self)
+        self.transition_to(state)
         self.satiety = 80
         self.health = 80
         self.happiness = 80
         self.money = 0
         self.money_delta = 10
-        self.image_path = "imgs/{}.png".format(state)
+        self.image_path = "imgs/{}.png".format(str(type(state).__name__).lower())
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, pygame.RLEACCEL)
         self.rect = self.image.get_rect()
         self.rect.center = (WIN_WIDTH / 2 - 70, WIN_HEIGHT / 2)
 
-    def update(self, new_state):
+    def transition_to(self, state: PetState):
+        self.update_img(str(type(state).__name__).lower())
+        self._state = state
+        self._state.pet = self
+
+    def update_state(self):
+        self._state.update_state()
+
+    def update_img(self, new_state):
         self.image_path = "imgs/{}.png".format(new_state)
         self.image = pygame.image.load(self.image_path).convert()
         self.image.set_colorkey(WHITE, pygame.RLEACCEL)
@@ -45,25 +57,6 @@ class Pet(pygame.sprite.Sprite):
             self.satiety = win
         if self.health > win:
             self.health = win
-
-    def update_state(self, lose=0, mid=50):
-        if self.happiness >= 90 and self.health >= 90 and self.satiety >= 90:
-            self.update("happy")
-        elif self.health == lose or self.satiety == lose:
-            self.update("died")
-        elif self.satiety < mid:
-            self.update("hungry")
-        elif self.satiety >= mid:
-            if self.health < mid:
-                self.update("unhealthy")
-            else:
-                if self.happiness <= 0:
-                    self.update("depression")
-                elif self.happiness < 40:
-                    self.update("bad")
-                elif self.happiness < 60:
-                    self.update("boring")
-                else: self.update("good")
 
     def feed(self):
         self.satiety += 10
